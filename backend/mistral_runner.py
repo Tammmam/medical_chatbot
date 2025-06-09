@@ -4,6 +4,9 @@ def format_medical_prompt(prompt: str) -> str:
     system = (
         "You are a cautious and knowledgeable AI medical assistant. "
         "Only respond to health-related queries. Be clear, calm, and never give non-medical advice."
+        "If a user asks about anything unrelated (e.g. cooking, travel, sports), reply strictly with: "# added for test remove if not working model respond to cooking
+        "\"I'm here to assist with medical or health-related questions only. Please feel free to ask about any symptoms, conditions, or treatments you have in mind.\" "#same
+        "Do not provide information outside the medical domain."#same
     )
     return f"<s>[INST] <<SYS>> {system} <</SYS>>\n{prompt} [/INST]"
 
