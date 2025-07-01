@@ -3,9 +3,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token
 from dotenv import load_dotenv
 import os
-
-from mistral_runner import generate_response
-from db import save_chat, get_chat_history, create_user, authenticate_user,clear_chat_history
+from grad_runner import predict, initialize_model
+from db import save_chat, get_chat_history, create_user, authenticate_user, clear_chat_history
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,7 +26,7 @@ def chat():
     if not prompt:
         return jsonify({"error": "Prompt is required"}), 400
 
-    response = generate_response(prompt)
+    response = predict(prompt)
     save_chat(username, prompt, response)
 
     return jsonify({"response": response})
@@ -53,7 +52,8 @@ def history():
     ]
 
     return jsonify({"history": formatted})
-# -------------------   Clear HISTORY ROUTE -------------------
+
+# ------------------- CLEAR HISTORY ROUTE -------------------
 @app.route("/api/clear_history", methods=["POST"])
 def clear_history():
     data = request.get_json()
@@ -64,7 +64,6 @@ def clear_history():
 
     clear_chat_history(username)
     return jsonify({"message": "Chat history cleared successfully."})
-
 
 # ------------------- REGISTER ROUTE -------------------
 @app.route("/api/auth/register", methods=["POST"])
@@ -111,4 +110,8 @@ def login():
 
 # ------------------- MAIN -------------------
 if __name__ == "__main__":
+    # Optional: eagerly initialize the model at startup
+    initialize_model()
+
+    # Run with debug OFF to avoid double-loading models
     app.run(port=5000, debug=True)
